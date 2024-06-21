@@ -1,0 +1,532 @@
+Session-1:
+        - Intraduction of bear metal, virtulization, containtanrized env. 
+		- Why we are using the containtanrized env.
+		
+Session-2:
+        - Installtion Docker on centos (Used AWS EC2 insatnce)
+		- Yum install docekr ce 
+		- yum install -y bash-completion 
+		- exec bash 
+		- Docker images pull/push; copy Images form one machine to anothe machine; docker tag.
+		- Commands :
+		          docker pull
+				  docker push 
+				  docker tag 
+				  docker inspect
+				  docker load 
+				  docker save
+				  docker rmi
+		
+Session-3: Docker container:
+
+        - docker run centos 
+		- docker run httpd 
+	
+        - docker run -d centos  --> background running  
+        - docker run -d httpd  --> deamen based process which will be running in background.
+        - docker run -it centos  --> i= interactive t= tty terminal.
+		- docker run -itd centos --> d= deaman 
+		- docker --help --> you will gives the all attribute and  flag which used it.
+		
+		- docker run --name=<name of container> -d <service_name_httpd>
+		- docker run -itd --restart always centos  --> if docker service is restrted then container will be restart and up.
+		- docker rm -f $(docker ps -a -q ) --> Remove the container by using container ID.
+		- docker cp <container ID>:<file path > .  --> copy file form container path to local host machine.
+		- docker log <container ID>
+		- docker rename <Container name > <Name>
+		
+		
+Session-4: Docker Network 
+
+        -  Port forwarding :
+		                  we can only bind one host port to one container. we can not bind one host port to two container at the same time.
+	    - docekr run -d --name apache -p hostport:container port httpd  (syntax of command )
+		- docker run -d --name apache -p 80:80 host
+	
+		- Creating Network in Docker :
+		- docker network create Idea 
+		- docker network create Vodafone  
+		- docker inspect network Idea
+		
+		- docker run -itd --name httpd-1 -p 80:80 --network Idea httpd
+        - docker run -itd --name httpd-2 -p 82:80 --network Vodafone httpd
+        - docker inspect Idea | grep -i ipaddress 
+        - docekr inspect Vodafone | grep -i ipaddress
+        - docekr network ls  --> list of networks 
+		- docekr network prune  -- (list of unused network )
+		- docker network remove Idea (network name)
+		
+Session-5: Docker-Storage
+        - docker run -itd --name mysql-1 -e MYSQL_ROOT_PASSWORD=root123 -v /data:/var/lib/mysql mysql
+		- docker volume ls  -- List docker Volumes (cd /var/lib/docekr/volume/)
+		- docker run -itd --name mysql-1 -e MYSQL_ROOT_PASSWORD=root123 -v dhiraj:/var/lib/mysql mysql
+		- docker exec -it b9d66ab58e77 bash  --> login into container
+		- docker export <container_ID> -o <filename.tar>  --> export the container
+		
+		- journalctl : Only application can read the code (encrypted) but not user/super user can not read the code. 
+		  we need to be use system.journal command to read the logs.
+		  
+Session-6: Docker File.		  
+
+Session-7: Kubernetes Features:
+        - Advantages using K8 insted of docekr
+		- Management controller e.g desire pod are running on cluster
+		- Manual Scaling 
+		- Automatic Scaling i.e. Prometheus using tool 
+		- Scheduling i.e we can schedule pod on cluster using "Node selector and cluster and load balnacer"
+		- High Avaibility pod and nodes 
+		- Project level isolation
+		- Quota allocation - i.e Project/Pod level based on CPU/RAM/Storage allocation.
+		- Inernal load balancing (service) - Kube Proxy ( 2 pod, split load )
+		- User level role (RBAC): Role Based Access Conntrol
+		
+		Kubernetes Architecture:
+		- Maste Node: 
+		    - api-sever
+			          - authentication  --> who can access my cluster (Cluster access )
+					  - authorization   --> what can he do/perfrom on cluster (cluster inside access )
+		    - Controller :
+			          - Replication controller 
+					  - Node controller
+					  - Endpoint controller
+					  
+		    - Scheduler :
+	                  - Deside best fit node for your application.
+            - ETCD Database :
+                      - Distributed database to store cluster config and cluster state in key value pairs. 			
+					  
+		- Worker Node:
+		    - Kube-proxy : 
+			          - Manage the network on pod level and flows 
+		    
+			- Kubelet :
+			          - Agent on nodes to communication beetween API and worker node. 
+					  - Accept instrucation from API and perfrom over on worker node and update current status of worker node to API.
+			
+			- Docker:
+			          - Container engine ( Kubernetes future version docker is going to replaces by crio)
+					  
+Session-8: POD's & Nodes: 
+        - kubectl api-resources
+        - kubectl get nodes
+		- kubectl get nodes -o wide
+		- kubectl get nodes -o wide --show-labels
+		- kubectl get pods
+		- kubectl get pods -o wide
+		- kubectl get pods -o wide --show-labels
+		- kubectl get all --all-namespaces 
+		- kubectl edit (po/dc/rc)
+		- kubectl describe (po/dc/rc)
+		
+		- To change namespace in K8:
+		- kubectl config set-context --current --namespace=<namespace>
+		- kubectl config view | grep -i namespace
+		- kubectl config get-contexts --> Display list of contexts
+		
+		- we can use "kubectl use namespace " by using configure in cluster 
+		    https://github.com/kvaps/kubectl-use
+		
+		Lables :
+		- kubectl label node <node_name> disk=ssd
+		- kubectl lable node <node_name> disk=sata
+		- kubectl get nodes -L disk  --> -L using : Show all disk type ssd and sata 
+		- kubectl get nodes -l disk=ssd  --> -l using shows the only ssd disk 
+		- kubectl lable node <node_name> disk=m2 --overwrite   --> to change or overwrite lable on node 
+		- kubectl label node <node_name> disk-     --> Removed disk lable on node 
+		- kubectl cordon node_name    --> Scheduling Disabled on node | node maintence 
+		- kubectl uncordon node_name  --> Scheduling Enable on node
+		- kubectl taint nodes <node_name> run=mypod:NoSchedule    --> Use command to apply the taint to the desired node
+		- kubectl taint nodes <node_name> run=mypod:NoSchedule-   --> Use the command to remove the taint from the node
+		- kubectl get pods -A -o=custom-columns='DATA:spec.containers[*].image' --> List all images running in a cluster
+		
+
+Session-9: Deployment and Replicaset:	
+        - kubectl get replicasets 
+        - kubectl get deployments	
+        - kubectl set image deployment <name_deployment> nginx=nginx:1.17 -n <namespace> 
+        - kubectl set image deployment <name_deployment> nginx=nginx:1.18 -n <namespace>
+        - kubectl rollout history deployment <name_deployment> -n <namespace>
+        - kubectl rollout undo deployment <name_deployment> -n <namespace>	
+        - kubectl set image deployment <name_deployment> nginx=nginx:1.17 -n <namespace> --record=true
+		- kubectl set image deployment <name_deployment> nginx=nginx:1.18 -n <namespace> --record=true
+		- kubectl rollout undo deployment <name_deployment> --to-revision=2
+		
+		-strategy:
+		   rollingUpdate:
+		     maxSurge: 50%          --> How many Pod are available duering rolling update 
+			 maxUnavailable: 10%    --> How many Pod will be deleted/terminatd during rollling update 
+			 
+		Daemon-Set:
+		- Daemon-Set is make sure that one pod of monitoring should be run on each worker node in my cluster everytime. (eg. Kube-proxy, Monitoring pod)
+		- In case you have added new worker node in cluster then monitoring pod will be created by Daemon-Set. 
+		- Example_1 : In cluster are 6 worker node is ruuning so Daemon-Set make sure to run single monitoring pod on each and every worker node instead of 2 or more pod's running on single worker node.
+		- Example_2 : In cluster added new worker node then Daemon-Set is responsible for create new monitoring pod on added worker node.
+			
+Session-10:	Secrets:
+        - Username and pssword are crusial and we can not share with anyone. we can keep in yaml file to anonymoususer/external user read password in file. 			  
+		- kubectl describe secret <Name_secret> -n <namespace>
+		- kubectl edit secret <Name_secret> -n <namespace>
+        - kubectl create secret generic <Name-of-secret> --from-literal=password=admin123 -n  <namespace>
+		- E.g kubectl create secret generic mysqlsecret  --from-literal=passmysql=redhat  -n  <namespace>
+                                                 |                         |
+		- in yamal file                          |                         |
+		    - name: MYSQL_ROOT_PASSWORD          |                         |
+			  valueFrom:                         |                         |
+			    secretKeyRef:                    |                         |
+				   name: mysqlsecret  <----------|                         |
+				   key: passmysql     <------------------------------------|                             
+			   
+	    - ConfigMap: It does not encode values and you can easily see thm but It vise versa in Secret.
+		- kubectl create configmap mysqlsecret  --from-literal=passmysql=redhat  -n  <namespace>
+		
+		- in yamal file                        
+		    - name: MYSQL_ROOT_PASSWORD          
+			  valueFrom:                         
+			    configMapKeyRef:                    
+				   name: mysqlsecret  
+				   key: passmysql   
+        - How to chekc env varibale paas in k8 :
+		   kubectl exec -it <pod_name> --printenv
+==========================================================================================================================================================================
+
+        - OpenShift: why required OCP and flow of OCP
+		    - Developer:
+			           - how to code
+					   - how to write a docker file
+					   - Uploaded docker file on GitHub
+					   
+			- OpenShift take task: (PAAS)	   
+                       1) Openshift can automatically download that docker file 
+                       2) Openshift can automatically build the image file
+                       3) Openshift can automatically push that image to internal openshift resgistry which comes pre-installed with openshift
+                       4) Openshift can automatically create deployment
+                       5) Openshift can automatically create services
+                       6) You can create route 
+                       7) Application will be accessible
+
+
+Session-11: Advantages of OpenShift
+        - Code Ready Container	(CRC)(Single Node Cluster)			
+		- High Avaibility. - POD  level avaibiliity controlled by Replicaset controller 
+		                   - Node level avaibiliity controlled by(Node controller ) 
+		- Light weight operating system:
+		                   - Focuses on ability,portability and Security
+						   - Core OS is an immutable operting system that means optimized for ruuning containerized application.
+						   - The entire operting system updated single image instead of an package-by-package system
+						   - Both user application and system component such as network service run as container.
+	    - Load Balancing: Cluster provides three types of LB's 
+		                   - Extarnal LB's :  Which is manage access to OpenShift API.
+						   - Internal LB's :  Netfilter rules for Internal access to application and services
+						   - HAP roxy LB's :  for Exteranl access to application.
+		                  
+		- Automatic Scaling : 
+		- Storage : 
+		- Cluster Extensibility 
+		                  - https://operatorhub.io/
+						  
+		- Master Node : Taint is by default applied during the OCP installtion.
+		                Taint is applied on NODE level.
+		                Tolerance is applied on POD level.
+		 				
+						
+Session-12:	Openshift Commands
+        - oc login <console-URL> --token=<token-secet-value> 
+        - oc login -u <user_name> -p <password>
+		- oc get users    --> to get user list
+        - oc debug node/<Node_name>  -> That means we can perfrom any command or execuation on node without login that particuler node.
+		                             -> NO required login node_name and you can perfrom any activity.
+									 
+		- oc adm top nodes           -> Utiliztion CPU/RAM/Storage Node
+		- oc get clusterversion
+		- oc describe clusterversion
+		- oc get clusteroperators
+		- oc adm node-logs <Node_Name>
+		- podman images 
+		- oc status 
+		- oc get events 
+		- oc get all 
+		- oc logs <pod_name>
+		- oc logs <Pod_Name> -c <Container_name>
+		- oc rsh <Pod_Name>
+		- oc cp <local_path> <Pod_Name>:<container_path>
+		- oc port-forward <Pod_Name>  local_port:Remote-port
+		
+Session-13: User Management 
+        - Authentication  : who will access the Cluster 
+        - Authorization : What type access to be provide once user loggged in Cluster
+        - oc adm policy   --> To attach clusterrole
+		- oc policy       --> To attche Projectrole
+		- oc get role
+		- oc get rolebindings
+		- oc get clusterrole
+		- 
+		
+		- oc get groups   -> To list of groups
+		- oc adm groups new <group_name>   -> create a new group 
+		- oc adm groups add-users <group_name> <user_name>
+        - oc adm policy add-cluster-role-to-user cluster-admin <username>  -> To provide clusterrole to user.
+		- oc adm policy remove-cluster-role-from-user <role_name> <username> 
+		- oc adm policy remove-cluster-role-from-group  <role_name> <group_name> 
+		
+        - htpasswd -c -B -b /tmp/htpasswd admin redhat  
+		     -c : Create user 
+			 -B : If not file exist/created then create new file 
+			 -b : To add user 
+	    - htpasswd -c -B -b /tmp/htpasswd dhiarj redhat
+		- htpasswd -D /tmp/htpasswd  - Delete the user 
+	    - oc create secret generic localusers --from-file htpasswd=/tmp/htpasswd -n <namespace>
+		- oc get oauth cluster -o yaml > oauth.yaml -> take backup 
+        - oc edit oauth cluster  -> to add localusers in outh.yaml file to get access on cluserrole	
+
+Session-14: RBAC : Role based access controlled
+        - oc adm policy --help 
+        - Cluster-role :
+                       1. cluster-admin : User can do anythngs with the cluster as he have admin priviligae 
+                       2. cluster-status : user can see (view access) the cluster but he can not delete nodes 
+        - Project-roles :
+                       1. admin : User can do anything for a prokect. he can create resources,create.delete,change project policies etc.
+                       2. edit  : The user can do anything within project but he can not chnage roject policies 
+                       3. view  : The user can view all the resources inside the project 	
+         
+        - oc policy add-role-to-user role-name username -n project   -> Add specified role to user with add-role-to-user commands
+		- Project administrators can use the "oc policy" command to add and remove namespaces roles.
+		- oc get clustrrolbinding 
+		- oc describe clustrrolbinding <name_role>
+
+Session-15: Service account
+        - ssc -> security context constraint  -> It gives to policy that what pod can access  
+
+Session-16: Service account:
+        - SDN is programmatic approch to give a flat pod network over the cluster
+		    1. flannel
+			2. openvswitch
+			3. celium
+			4. muultus - openshift 4.2
+			5. weave - used in kubernete
+			
+		- SDN solve the following five requirement :
+		    1. Managing the network traffic and network resource programmatically, so that organization teams can decide how to expose their application
+			2. Managing communication between containers that run in the same namespace/project 
+            3. Managing communication beetween pods, whether they belongs to a same project or run in separate project
+            4. Managing network communication from POD to service level.
+            5. Managing network communication from extrnal netowrk to service or from container to external service.			
+			
+		
+		- Server  -NodePort - 30000-32767
+		- kubectl get ep -n <namespace>
+
+Session-17: Service Types 
+        - Cluster-IP:
+		    1. This service type expose the service using the internal IP's to the cluster 
+			2. This IP's are not accessible from external network
+			3. This is default value when you define a service 
+			4. As an administrator, You can configure the CIDR for these IP's at installtion time. 
+			
+		- NodePort:
+		    1. This service type to instruct the OCP control-plane to map to an IP address. This is legacy type and RedHat recommends using routes instead of this.
+			 
+		- Load Balancer:
+		    1. This service exposes the service through a cloud provider load balancer. 
+			2. You access the virtual IP of the provider's load balancer and the openshift control-plane creates automatically node-port or cluster-IP to route the incoming packages.
+		
+		- External name:
+				
+		
+		
+Session-18: Certificate :
+        - Check certificate issuer, validity, CN name, sigature alogoritham,
+        - FYI : All the K8 releated certificate is available in "/etc/kubernete/pki/" home directory.
+
+        - Port for etcd : 2379
+        How to view and deocde the certificate:
+        - openssl x509 -in <path_crt/key> -text -noout 
+		- All certificate releared actvity managed carried out by "controller Manager" like, CSR-APPROVING, CSR-SIGNING.
+              # cat /etc/kubernete/manifests/kube-controller-manager.yaml   		     
+			  - --cluster-signing-cert-file=/etc/kubernetes/pki/ca.crt
+              - --cluster-signing-key-file=/etc/kubernetes/pki/ca.key
+		- If Anyone has sign the certificate, required CA server, root server, private-key to sign certificate.
+		
+		- Example :
+		  If we have both "*.csr" and "*.key" certificate is available.
+		  we can create yaml file and approve the requets form CA authority.
+		  
+		- kubectl apply -f dhiraj.csr.yaml -> to create CSR : will be in pending status 
+		
+		- Approve and Deny the CSR approval request:
+        - kubectl certificate approve Dhiraj
+        - kubectl certificate deny Dhiraj		
+		- cat Dhiraj.csr | base64 -w 0  -->  to encode the certificate signing request.
+=================================================
+cat dhiraj.csr.yaml		  
+---
+apiVersion: certificates.k8s.io/v1
+kind: CertificateSigningRequest
+metadata:
+  name: Dhiraj
+spec:
+  groups:
+  - system:authenticated
+  request: $(cat server.csr | base64 -w 0)
+  signerName: example.com/serving
+  usages:
+  - digital signature
+  - key encipherment
+  - server auth
+====================================================		  
+#  KubeConfig file present below file to help to login K8 clusters: 
+    KubeConfig file 
+		 - server api
+		 - client-certificate (admin.crt)
+		 - client-key (admin.key)
+		 - certificate-authority (ca.crt)
+	Three componante in config files :
+	 - clusters :(prod, non-prod, dev)
+	 - Users :  Dev, admin, test
+	 - Context :   (admin@dev, dev@prod)
+	 
+==========================================================================================================================================
+
+(core )
+/api 
+/v1
+namespaces, pods, RC, events, endpoint, nodes, bindings, pv, pvc, configmap, secrets, services
+
+mamed 
+/apis
+  |
+/apps      /extensions     /networking.k8s.io     /storage.k8s.io       /authentication.k8s.io         /certificates.k8s.io       
+  |                                |                                                                           |                                          
+ /v1                              /v1                                                                         /v1
+  |                                |                                                                           |
+  |-> /deployment                  |->/networkpolicies                                                         |->/certificatesigningrequests
+  |-> /configMap
+  |-> /replicaset
+  |-> /statefulset-->
+                    - list
+					- get
+					- create
+					- delete
+					- update 
+					- watch
+					  Verbs
+
+==========================================================================================================================================
+Authorization :
+- Node
+- ABAC
+- RBAC
+- Webhook 
+- alwaysAllow, alwaysDeny
+
+Authentication is mentioned in /etc/kubernetes/manifests/kube-apiserver.yaml file 
+
+# - --authorization-mode=Node,RBAC
+
+Role based access control : 
+api use : rbac.authorization.k8s.io/v1
+
+Role : Define all roles here to use, 
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: dev-rule
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+---------------------------------------------------------------------------------------
+RoleBinding : 
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: dev-user-binding
+subjects:
+- kind: User
+  name: dev-user
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name : dev-rule
+  apiGroup: rbac.authorization.k8s.io
+--------------------------------------------------------------------------------------------
+Q: create name of nginx pod with yaml and command line:
+
+# kubectl run nginx --image=nginx
+
+# cat pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    env: dev
+spec:
+  containers:
+  - name: nginx 
+    image: nginx
+--------------------------------------------------------------------------------------------
+# clusterrole and clusterrolebinding :
+
+Cluster scope define roles : node, pv, namespace, certificatesigningrequests.
+
+# kubectl auth can-i create nodes --as michelle
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: node-admin
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "watch", "list", "create", "delete"]
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: michelle-binding
+subjects:
+- kind: User
+  name: michelle
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: node-admin
+  apiGroup: rbac.authorization.k8s.io
+-------------------------------------------------------------------------------------------------
+
+storageclasses                    sc           storage.k8s.io/v1                 false        StorageClass
+volumeattachments                              storage.k8s.io/v1                 false        VolumeAttachment
+
+persistentvolumeclaims            pvc          v1                                true         PersistentVolumeClaim
+persistentvolumes                 pv           v1                                false        PersistentVolume
+volumeattachments                              storage.k8s.io/v1                 false        VolumeAttachment
+=====================================================================================================---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: storage-admin
+rules:
+- apiGroups: [""]
+  resources: ["persistentvolumes"]
+  verbs: ["get", "watch", "list", "create", "delete"]
+- apiGroups: ["storage.k8s.io"]
+  resources: ["storageclasses"]
+  verbs: ["get", "watch", "list", "create", "delete"]
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: michelle-storage-admin
+subjects:
+- kind: User
+  name: michelle
+  apiGroup: rbac.authorization.k8s.io 
+roleRef:
+  kind: ClusterRole
+  name: storage-admin
+  apiGroup: rbac.authorization.k8s.io
