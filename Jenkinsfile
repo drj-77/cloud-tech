@@ -33,3 +33,19 @@ pipeline {
     }
 }  
 }
+
+// Function to launch EC2 instance
+def awsEC2LaunchInstance(ec2Config) {
+    def AmazonEC2 = new com.amazonaws.services.ec2.AmazonEC2Client()
+    AmazonEC2.setRegion(com.amazonaws.regions.RegionUtils.getRegion(ec2Config.region))
+    
+    def runInstancesRequest = new com.amazonaws.services.ec2.model.RunInstancesRequest()
+        .withImageId(ec2Config.imageId)
+        .withInstanceType(ec2Config.type)
+        .withSecurityGroupIds(ec2Config.securityGroup)
+        .withSubnetId(ec2Config.subnetId)
+    
+    def runInstancesResult = AmazonEC2.runInstances(runInstancesRequest)
+    
+    return runInstancesResult.getReservation().getInstances().get(0)
+}
